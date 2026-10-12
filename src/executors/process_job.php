@@ -2,9 +2,31 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__, 2) . '/vendor/autoload.php';
-
 use Gatovel\Queue\contracts\JobInterface;
+
+$autoloadCandidates = [
+    dirname(__DIR__, 2) . '/vendor/autoload.php',
+    dirname(__DIR__, 4) . '/autoload.php',
+];
+
+$autoloadFound = false;
+
+foreach ($autoloadCandidates as $autoload) {
+    if (is_file($autoload)) {
+        require_once $autoload;
+        $autoloadFound = true;
+        break;
+    }
+}
+
+if (!$autoloadFound) {
+    fwrite(
+        STDERR,
+        'Unable to locate Composer autoload.php.' . PHP_EOL
+    );
+
+    exit(1);
+}
 
 try {
     $input = stream_get_contents(STDIN);
